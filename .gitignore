@@ -1,0 +1,49 @@
+########################
+# .NET
+########################
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.csproj.user
+*.db
+*.DS_Store
+*.log
+
+########################
+# macOS
+########################
+.DS_Store
+.AppleDouble
+.LSOverride
+
+########################
+# Rider (JetBrains)
+########################
+.idea/
+*.sln.iml
+
+########################
+# VS Code (opsiyonel)
+########################
+.vscode/
+
+########################
+# Test ve Coverage
+########################
+TestResults/
+*.coverage
+*.coveragexml
+*.testsettings
+*.vsmdi
+*.psess
+*.vsp
+*.vspx
+*.pdb
+
+########################
+# Docker / K8s (opsiyonel)
+########################
+docker-compose.override.yml
+.env
