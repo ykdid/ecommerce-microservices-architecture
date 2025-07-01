@@ -17,12 +17,19 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FindAsync(new object?[] { id }, cancellationToken);
+        var entity = await _dbSet.FindAsync(new object?[] { id }, cancellationToken);
+
+        if (entity != null && EF.Property<bool>(entity, "IsDeleted"))
+            return null;
+
+        return entity;
     }
 
     public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _dbSet.ToListAsync(cancellationToken);
+        return await _dbSet
+            .Where(e => EF.Property<bool>(e, "IsDeleted") == false)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
