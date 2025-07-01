@@ -8,7 +8,7 @@ public sealed class Product : BaseEntity
     public string Name { get; private set; }
     public Price Price { get; private set; }
     public Stock Stock { get; private set; }
-    public Stock Type { get; set; }
+    public bool IsDeleted { get; private set; }
 
     private Product() { }
 
@@ -17,6 +17,19 @@ public sealed class Product : BaseEntity
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Price = price ?? throw new ArgumentNullException(nameof(price));
         Stock = stock ?? throw new ArgumentNullException(nameof(stock));
+        IsDeleted = false;
+    }
+    
+    public void Update(string name, Price price, Stock stock)
+    {
+        Name = name;
+        Price = price;
+        Stock = stock;
+    }
+    
+    public void Delete()
+    {
+        IsDeleted = true;
     }
 
     public void UpdateStock(int newQuantity)
