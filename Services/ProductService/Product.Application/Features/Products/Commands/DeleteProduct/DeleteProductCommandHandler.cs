@@ -17,6 +17,11 @@ public sealed class DeleteProductCommandHandler : IRequestHandler<DeleteProductC
         var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken)
                       ?? throw new Exception("Product not found.");
 
+        if (product.IsDeleted)
+        {
+            throw new Exception("Product already deleted");
+        }
+
         product.Delete();
         await _productRepository.UpdateAsync(product, cancellationToken);
         

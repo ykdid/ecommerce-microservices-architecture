@@ -18,7 +18,25 @@ public static class ServiceRegistration
 
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IProductRepository, ProductRepository>();
+        
+        
 
         return services;
+    }
+    
+    public static void ApplyMigrations(this IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var serviceProvider = scope.ServiceProvider;
+        var context = serviceProvider.GetRequiredService<AppDbContext>();
+
+        try
+        {
+            context.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
     }
 }

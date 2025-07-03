@@ -12,5 +12,18 @@ public class AppDbContext : DbContext
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.Entity<Domain.Entities.Product>(builder =>
+        {
+            builder.OwnsOne(p => p.Price, price =>
+            {
+                price.Property(p => p.Amount).HasColumnName("Price");
+            });
+
+            builder.OwnsOne(p => p.Stock, stock =>
+            {
+                stock.Property(s => s.Quantity).HasColumnName("Stock");
+            });
+        });
     }
 }

@@ -17,12 +17,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.FindAsync(new object?[] { id }, cancellationToken);
-
-        if (entity != null && EF.Property<bool>(entity, "IsDeleted"))
-            return null;
-
-        return entity;
+        return await _dbSet.FindAsync(new object?[] { id }, cancellationToken);
     }
 
     public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
