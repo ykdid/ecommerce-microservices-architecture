@@ -1,4 +1,5 @@
 using Auth.Application.Abstractions.Authentication;
+using Auth.Application.Abstractions.Identity;
 using Auth.Infrastructure.Identity;
 using Auth.Infrastructure.JWT;
 using Auth.Infrastructure.Persistence;
@@ -26,7 +27,24 @@ public static class ServiceRegistration
         
         services.Configure<JwtSettings>(config.GetSection("JwtSettings"));
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IUserService, UserService>();
 
         return services;
+    }
+    
+    public static void ApplyMigrations(this IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var serviceProvider = scope.ServiceProvider;
+        var context = serviceProvider.GetRequiredService<AuthDbContext>();
+
+        try
+        {
+            context.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
     }
 }
