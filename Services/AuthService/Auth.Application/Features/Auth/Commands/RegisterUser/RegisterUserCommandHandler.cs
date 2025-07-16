@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Auth.Application.Features.Auth.Commands.RegisterUser;
 
-public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, string>
+public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, (string Token, string RefreshToken)>
 {
     private readonly IUserService _userService;
 
@@ -13,13 +13,14 @@ public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCom
         _userService = userService;
     }
 
-    public async Task<string> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<(string Token, string RefreshToken)> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        var (succeeded, token, errors) = await _userService.RegisterAsync(request.FullName, request.Email, request.Password);
+        var (succeeded, token, refreshToken, errors) = 
+            await _userService.RegisterAsync(request.FullName, request.Email, request.Password);
 
         if (!succeeded)
             throw new Exception(string.Join(" | ", errors));
 
-        return token;
+        return (token, refreshToken);
     }
 }
