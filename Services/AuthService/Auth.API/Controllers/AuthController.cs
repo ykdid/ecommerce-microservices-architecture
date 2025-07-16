@@ -1,5 +1,6 @@
 using Auth.Application.Features.Auth.Commands.LoginUser;
 using Auth.Application.Features.Auth.Commands.RegisterUser;
+using Auth.Application.Features.Auth.RefreshToken;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,18 +16,43 @@ public class AuthController : ControllerBase
     {
         _mediator = mediator;
     }
-
+    
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterUserCommand command)
     {
-        var token = await _mediator.Send(command);
-        return Ok(new { Token = token });
+        var (accessToken, refreshToken) = await _mediator.Send(command);
+
+        Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7)
+        });
+
+        return Ok(new { token = accessToken });
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginUserCommand command)
     {
-        var token = await _mediator.Send(command);
-        return Ok(new { Token = token });
+        var (accessToken, refreshToken) = await _mediator.Send(command);
+
+        Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7)
+        });
+
+        return Ok(new { token = accessToken });
+    }
+    
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var result = await _mediator.Send(new RefreshTokenCommand());
+        return Ok(new { AccessToken = result });
     }
 }
