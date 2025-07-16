@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: ProductDb
     ports:
-      - "5444:5432"  # Sol taraf host (local), sağ taraf container içi port
+      - "5444:5432"
     volumes:
       - product_data:/var/lib/postgresql/data
     networks:
@@ -30,8 +30,40 @@ services:
     networks:
       - ecommerce-net
 
+  auth-db:
+    image: postgres:16
+    container_name: auth-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: AuthDb
+    ports:
+      - "5445:5432"
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-net
+
+  auth-api:
+    build:
+      context: ./Services/AuthService
+      dockerfile: Auth.API/Dockerfile
+    container_name: auth-api
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgreSQL=Host=auth-db;Port=5432;Database=AuthDb;Username=postgres;Password=postgres
+    ports:
+      - "7002:8080"
+    depends_on:
+      - auth-db
+    networks:
+      - ecommerce-net
+
 volumes:
   product_data:
+  auth_data:
 
 networks:
   ecommerce-net:
