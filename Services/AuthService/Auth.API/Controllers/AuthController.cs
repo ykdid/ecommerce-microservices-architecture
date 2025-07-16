@@ -49,10 +49,14 @@ public class AuthController : ControllerBase
         return Ok(new { token = accessToken });
     }
     
-    [HttpPost("refresh-token")]
+    [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken()
     {
-        var result = await _mediator.Send(new RefreshTokenCommand());
-        return Ok(new { AccessToken = result });
+        var refreshToken = Request.Cookies["refreshToken"];
+
+        var command = new RefreshTokenCommand(refreshToken);
+        var newAccessToken = await _mediator.Send(command);
+
+        return Ok(new { accessToken = newAccessToken });
     }
 }
