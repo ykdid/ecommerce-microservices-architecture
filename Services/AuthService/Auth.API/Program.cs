@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Auth.Application.DependencyInjection;
 using Auth.Infrastructure.DependencyInjection;
+using Auth.Infrastructure.Persistence;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,6 +68,7 @@ builder.Services.AddSwaggerGen(opt =>
 
 var app = builder.Build();
 
+await AuthDbContextSeeder.SeedRolesAsync(app.Services);
 app.Services.ApplyMigrations();
 app.UseExceptionHandler();
 
