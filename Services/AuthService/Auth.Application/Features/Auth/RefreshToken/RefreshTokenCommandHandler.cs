@@ -4,54 +4,37 @@ using Microsoft.AspNetCore.Http;
 using MediatR;
 
 namespace Auth.Application.Features.Auth.RefreshToken;
-
 public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, string>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IUserService _userService;
-    private readonly ITokenService _tokenService;
 
-    public RefreshTokenCommandHandler(
-        IHttpContextAccessor httpContextAccessor,
-        IUserService userService,
-        ITokenService tokenService)
+    public RefreshTokenCommandHandler(IUserService userService)
     {
-        _httpContextAccessor = httpContextAccessor;
         _userService = userService;
-        _tokenService = tokenService;
     }
 
     public async Task<string> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var refreshToken = _httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
-        if (string.IsNullOrEmpty(refreshToken))
-            throw new Exception("Refresh token not found.");
+        if (string.IsNullOrWhiteSpace(request.RefreshTokenFromCookie))
+            throw new Exception("Refresh token not found in cookie");
 
-        var isValid = await _userService.IsRefreshTokenValidAsync(refreshToken);
+        var isValid = await _userService.IsRefreshTokenValidAsync(request.RefreshTokenFromCookie);
+
         if (!isValid)
-            throw new Exception("Refresh token invalid or expired.");
+            throw new Exception("Invalid refresh token");
 
-        var user = await _userService.GetUserByRefreshTokenAsync(refreshToken);
+        var user = await _userService.GetUserByRefreshTokenAsync(request.RefreshTokenFromCookie);
+
         if (user is null)
-            throw new Exception("User not found.");
+            throw new Exception("User not found");
 
-        await _userService.RevokeRefreshTokenAsync(refreshToken);
+        await _userService.RevokeRefreshTokenAsync(request.RefreshTokenFromCookie);
 
-        var roles = new List<string> { "User" };
-        var accessToken = _tokenService.GenerateToken(user.Id, user.Email, roles);
+        var newRefreshTokenDto = await _userService.GenerateAndSaveNewRefreshTokenAsync(user.Id);
 
-        var newRefreshToken = await _userService.GenerateAndSaveNewRefreshTokenAsync(user.Id);
+        var accessToken = await _userService.GenerateAccessTokenAsync(user);
 
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append(
-            "refreshToken",
-            newRefreshToken.Token,
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = newRefreshToken.ExpiresAt
-            });
+        _userService.AppendRefreshTokenCookie(newRefreshTokenDto.Token, newRefreshTokenDto.ExpiresAt);
 
         return accessToken;
     }

@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Auth.Application.Abstractions.Authentication;
 using Auth.Application.Abstractions.Identity;
 using Auth.Application.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,15 +13,18 @@ public sealed class UserService : IUserService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ITokenService _tokenService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public UserService(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        ITokenService tokenService)
+        ITokenService tokenService,
+        IHttpContextAccessor httpContextAccessor)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _tokenService = tokenService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<(bool Succeeded, string Token, string RefreshToken, string[] Errors)> RegisterAsync(string fullName, string email, string password)
@@ -88,8 +92,10 @@ public sealed class UserService : IUserService
             .FirstOrDefaultAsync(u => u.RefreshTokens.Any(rt => rt.Token == refreshToken));
 
         if (user == null) return null;
+        
+        var roles = await _userManager.GetRolesAsync(user);
 
-        return new UserDto(user.Id, user.Email!, user.UserName!);
+        return new UserDto(user.Id, user.Email!, user.UserName!, roles);
     }
         
     public async Task<bool> IsRefreshTokenValidAsync(string refreshToken)
@@ -137,6 +143,31 @@ public sealed class UserService : IUserService
         await _userManager.UpdateAsync(user);
 
         return new RefreshTokenDto(newRefreshToken.Token, newRefreshToken.ExpiresAt);
+    }
+    
+    public void AppendRefreshTokenCookie(string refreshToken, DateTime expiresAt)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = expiresAt,
+            Path = "/"
+        };
+
+        _httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+    }
+    
+    public async Task<string> GenerateAccessTokenAsync(UserDto userDto)
+    {
+        var user = await _userManager.FindByIdAsync(userDto.Id);
+        if (user is null)
+            throw new Exception("User not found");
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        return _tokenService.GenerateToken(user.Id, user.Email!, roles);
     }
     
 }

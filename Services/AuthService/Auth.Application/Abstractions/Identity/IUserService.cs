@@ -10,4 +10,6 @@ public interface IUserService
     Task<bool> IsRefreshTokenValidAsync(string refreshToken);
     Task RevokeRefreshTokenAsync(string refreshToken);
     Task<RefreshTokenDto> GenerateAndSaveNewRefreshTokenAsync(string userId);
+    void AppendRefreshTokenCookie(string refreshToken, DateTime expiresAt);
+    Task<string> GenerateAccessTokenAsync(UserDto userDto);
 }
