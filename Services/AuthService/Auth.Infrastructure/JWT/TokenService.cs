@@ -44,9 +44,11 @@ public sealed class TokenService : ITokenService
 
     public string GenerateRefreshToken()
     {
-        var bytes = new byte[64];
         using var rng = RandomNumberGenerator.Create();
+        var bytes = new byte[64];
         rng.GetBytes(bytes);
-        return Convert.ToBase64String(bytes);
+        return Convert.ToBase64String(bytes)
+            .Replace("/", "_")
+            .Replace("+", "-");
     }
 }

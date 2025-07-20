@@ -2,6 +2,7 @@ using Auth.Application.Features.Auth.Commands.LoginUser;
 using Auth.Application.Features.Auth.Commands.RegisterUser;
 using Auth.Application.Features.Auth.RefreshToken;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auth.API.Controllers;
@@ -20,43 +21,41 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterUserCommand command)
     {
-        var (accessToken, refreshToken) = await _mediator.Send(command);
-
-        Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddDays(7)
-        });
-
+        var accessToken = await _mediator.Send(command);
         return Ok(new { token = accessToken });
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginUserCommand command)
     {
-        var (accessToken, refreshToken) = await _mediator.Send(command);
-
-        Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddDays(7)
-        });
-
+        var accessToken = await _mediator.Send(command);
         return Ok(new { token = accessToken });
     }
     
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken()
     {
-        var refreshToken = Request.Cookies["refreshToken"];
+        try
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return BadRequest("Refresh token cookie not found.");
 
-        var command = new RefreshTokenCommand(refreshToken);
-        var newAccessToken = await _mediator.Send(command);
+            var command = new RefreshTokenCommand(refreshToken);
+            var newAccessToken = await _mediator.Send(command);
 
-        return Ok(new { accessToken = newAccessToken });
+            return Ok(new { accessToken = newAccessToken });
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpGet("health")]
+    public IActionResult Health()
+    {
+        return Ok();
     }
 }
