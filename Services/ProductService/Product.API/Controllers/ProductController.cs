@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Product.Application.Features.Products.Commands.CreateProduct;
 using Product.Application.Features.Products.Commands.DeleteProduct;
@@ -8,6 +9,7 @@ using Product.Application.Features.Products.Queries.GetProductById;
 
 namespace Product.API.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase

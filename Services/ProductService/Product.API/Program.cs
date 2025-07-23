@@ -1,5 +1,7 @@
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Product.Application;
+using Product.Infrastructure.Persistence;
 using Product.Application.DependencyInjection;
 using Product.Infrastructure.DependencyInjection;
 
@@ -22,10 +24,42 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowGatewayOnly", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:8000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwtSettings.Audience,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 app.Services.ApplyMigrations();
 app.UseExceptionHandler();
+app.UseCors("AllowGatewayOnly");
 
 if (app.Environment.IsDevelopment())
 {
@@ -38,6 +72,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

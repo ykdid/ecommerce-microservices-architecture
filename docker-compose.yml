@@ -61,6 +61,19 @@ services:
     networks:
       - ecommerce-net
 
+  gateway:
+    build:
+      context: ./Gateway/ApiGateway.Ocelot
+      dockerfile: Dockerfile
+    container_name: gateway
+    ports:
+      - "8000:8080"
+    depends_on:
+      - auth-api
+      - product-api
+    networks:
+      - ecommerce-net
+
 volumes:
   product_data:
   auth_data:

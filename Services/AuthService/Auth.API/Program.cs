@@ -66,11 +66,23 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowGatewayOnly", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:8000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 await AuthDbContextSeeder.SeedRolesAsync(app.Services);
 app.Services.ApplyMigrations();
 app.UseExceptionHandler();
+app.UseCors("AllowGatewayOnly");
 
 if (app.Environment.IsDevelopment())
 {
