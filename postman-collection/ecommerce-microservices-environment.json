@@ -1,0 +1,181 @@
+{
+  "id": "ecommerce-microservices-environment",
+  "name": "E-Commerce Microservices Environment",
+  "values": [
+    {
+      "key": "gateway_url",
+      "value": "http://localhost:8000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "auth_api_url",
+      "value": "http://localhost:7001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "product_api_url",
+      "value": "http://localhost:7002",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "order_api_url",
+      "value": "http://localhost:7003",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "stock_api_url",
+      "value": "http://localhost:7004",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_fullname",
+      "value": "Test User",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_email",
+      "value": "test@example.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_password",
+      "value": "TestPassword123!",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_id",
+      "value": "test-user-123",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "product_name",
+      "value": "Sample Product",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "product_price",
+      "value": "99.99",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "product_stock",
+      "value": "100",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "product_price_updated",
+      "value": "119.99",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "product_stock_updated",
+      "value": "150",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "shipping_street",
+      "value": "123 Main Street",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "shipping_city",
+      "value": "New York",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "shipping_state",
+      "value": "NY",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "shipping_country",
+      "value": "USA",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "shipping_zipcode",
+      "value": "10001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "billing_street",
+      "value": "123 Main Street",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "billing_city",
+      "value": "New York",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "billing_state",
+      "value": "NY",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "billing_country",
+      "value": "USA",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "billing_zipcode",
+      "value": "10001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "currency",
+      "value": "USD",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "order_quantity",
+      "value": "2",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "new_stock_quantity",
+      "value": "200",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "reserve_quantity",
+      "value": "5",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "release_quantity",
+      "value": "3",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
