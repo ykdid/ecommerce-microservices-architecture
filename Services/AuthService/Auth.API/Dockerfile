@@ -5,12 +5,13 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Auth.API/Auth.API.csproj", "Auth.API/"]
-COPY ["Auth.Application/Auth.Application.csproj", "Auth.Application/"]
-COPY ["Auth.Domain/Auth.Domain.csproj", "Auth.Domain/"]
-RUN dotnet restore "Auth.API/Auth.API.csproj"
+COPY ["Services/AuthService/Auth.API/Auth.API.csproj", "Services/AuthService/Auth.API/"]
+COPY ["Services/AuthService/Auth.Application/Auth.Application.csproj", "Services/AuthService/Auth.Application/"]
+COPY ["Services/AuthService/Auth.Domain/Auth.Domain.csproj", "Services/AuthService/Auth.Domain/"]
+COPY ["Services/AuthService/Auth.Infrastructure/Auth.Infrastructure.csproj", "Services/AuthService/Auth.Infrastructure/"]
+RUN dotnet restore "Services/AuthService/Auth.API/Auth.API.csproj"
 COPY . .
-WORKDIR "/src/Auth.API"
+WORKDIR "/src/Services/AuthService/Auth.API"
 RUN dotnet build "Auth.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
