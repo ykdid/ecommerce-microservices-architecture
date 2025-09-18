@@ -78,6 +78,86 @@ services:
     networks:
       - ecommerce-net
 
+  order-db:
+    image: postgres:16
+    container_name: order-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: OrderServiceDb
+    ports:
+      - "5446:5432"
+    volumes:
+      - order_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-net
+
+  order-api:
+    build:
+      context: ./Services/OrderService
+      dockerfile: Order.API/Dockerfile
+    container_name: order-api
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=order-db;Port=5432;Database=OrderServiceDb;Username=postgres;Password=postgres
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+      - RabbitMQ__VirtualHost=/
+      - RabbitMQ__QueueName=order_queue
+      - RabbitMQ__ExchangeName=ecommerce_exchange
+      - RabbitMQ__RoutingKey=order.events
+    ports:
+      - "7003:8080"
+    depends_on:
+      - order-db
+      - rabbitmq
+    networks:
+      - ecommerce-net
+
+  stock-db:
+    image: postgres:16
+    container_name: stock-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: StockServiceDb
+    ports:
+      - "5447:5432"
+    volumes:
+      - stock_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-net
+
+  stock-api:
+    build:
+      context: ./Services/StockService
+      dockerfile: Stock.API/Dockerfile
+    container_name: stock-api
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=stock-db;Port=5432;Database=StockServiceDb;Username=postgres;Password=postgres
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+      - RabbitMQ__VirtualHost=/
+      - RabbitMQ__QueueName=stock_queue
+      - RabbitMQ__ExchangeName=ecommerce_exchange
+      - RabbitMQ__RoutingKey=stock.events
+    ports:
+      - "7004:8080"
+    depends_on:
+      - stock-db
+      - rabbitmq
+    networks:
+      - ecommerce-net
+
   gateway:
     build:
       context: ./Gateway/ApiGateway.Ocelot
@@ -88,6 +168,8 @@ services:
     depends_on:
       - auth-api
       - product-api
+      - order-api
+      - stock-api
       - rabbitmq
     networks:
       - ecommerce-net
@@ -96,6 +178,8 @@ volumes:
   rabbitmq_data:
   product_data:
   auth_data:
+  order_data:
+  stock_data:
 
 networks:
   ecommerce-net:
