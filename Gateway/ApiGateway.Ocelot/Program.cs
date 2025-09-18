@@ -6,6 +6,18 @@ using Ocelot.Provider.Polly;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:5173")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 builder.Services
     .AddOcelot()
     .AddPolly();
@@ -40,6 +52,9 @@ builder.Services.AddAuthentication("Bearer")
     });
 
 var app = builder.Build();
+
+// Use CORS before other middleware
+app.UseCors("AllowFrontend");
 
 app.UseRouting();
 app.UseAuthentication();
