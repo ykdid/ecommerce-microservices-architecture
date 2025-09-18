@@ -12,7 +12,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<RabbitMQSettings>(configuration.GetSection(RabbitMQSettings.SectionName));
+        services.Configure<RabbitMQSettings>(options => 
+            configuration.GetSection(RabbitMQSettings.SectionName).Bind(options));
         
         services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
         
@@ -20,9 +21,9 @@ public static class ServiceCollectionExtensions
         {
             var logger = sp.GetRequiredService<ILogger<RabbitMQEventBus>>();
             var subsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
-            var rabbitMQSettings = configuration.GetSection(RabbitMQSettings.SectionName).Get<RabbitMQSettings>();
+            var rabbitMQSettings = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<RabbitMQSettings>>();
             
-            return new RabbitMQEventBus(logger, subsManager, sp, Microsoft.Extensions.Options.Options.Create(rabbitMQSettings!));
+            return new RabbitMQEventBus(logger, subsManager, sp, rabbitMQSettings);
         });
 
         return services;

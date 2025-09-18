@@ -1,4 +1,5 @@
 using EventBus.Abstractions;
+using EventBus.Events;
 
 namespace EventBus.EventBusSubscriptionsManager;
 
@@ -26,7 +27,7 @@ public class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManage
     }
 
     public void AddSubscription<T, TH>()
-        where T : class
+        where T : IntegrationEvent
         where TH : class, IIntegrationEventHandler<T>
     {
         var eventName = GetEventKey<T>();
@@ -69,7 +70,7 @@ public class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManage
     }
 
     public void RemoveSubscription<T, TH>()
-        where T : class
+        where T : IntegrationEvent
         where TH : class, IIntegrationEventHandler<T>
     {
         var handlerToRemove = DoFindSubscriptionToRemove<T, TH>();
@@ -95,7 +96,7 @@ public class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManage
         }
     }
 
-    public IEnumerable<SubscriptionInfo> GetHandlersForEvent<T>() where T : class
+    public IEnumerable<SubscriptionInfo> GetHandlersForEvent<T>() where T : IntegrationEvent
     {
         var key = GetEventKey<T>();
         return GetHandlersForEvent(key);
@@ -115,7 +116,7 @@ public class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManage
     }
 
     private SubscriptionInfo? DoFindSubscriptionToRemove<T, TH>()
-             where T : class
+             where T : IntegrationEvent
              where TH : class, IIntegrationEventHandler<T>
     {
         var eventName = GetEventKey<T>();
@@ -132,7 +133,7 @@ public class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManage
         return _handlers[eventName].SingleOrDefault(s => s.HandlerType == handlerType);
     }
 
-    public bool HasSubscriptionsForEvent<T>() where T : class
+    public bool HasSubscriptionsForEvent<T>() where T : IntegrationEvent
     {
         var key = GetEventKey<T>();
         return HasSubscriptionsForEvent(key);

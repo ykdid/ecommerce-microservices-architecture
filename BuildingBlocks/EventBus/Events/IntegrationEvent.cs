@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace EventBus.Events;
 
-public record IntegrationEvent
+public class IntegrationEvent
 {
     public IntegrationEvent()
     {
