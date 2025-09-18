@@ -22,31 +22,40 @@ public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, Order
         if (order == null)
             return null;
 
-        return new OrderDto
-        {
-            Id = order.Id,
-            UserId = order.UserId,
-            Status = order.Status.ToString(),
-            TotalAmount = order.TotalAmount.Amount,
-            Currency = order.TotalAmount.Currency,
-            ShippingAddress = new AddressDto
-            {
-                Street = order.ShippingAddress.Street,
-                City = order.ShippingAddress.City,
-                State = order.ShippingAddress.State,
-                Country = order.ShippingAddress.Country,
-                ZipCode = order.ShippingAddress.ZipCode
-            },
-            OrderItems = order.OrderItems.Select(item => new OrderItemDto
-            {
-                Id = item.Id,
-                ProductId = item.ProductId,
-                ProductName = item.ProductName,
-                Quantity = item.Quantity,
-                UnitPrice = item.UnitPrice.Amount,
-                Currency = item.UnitPrice.Currency
-            }).ToList(),
-            CreatedAt = order.CreatedAt
-        };
+        return new OrderDto(
+            order.Id,
+            order.UserId,
+            order.Status.ToString(),
+            new AddressDto(
+                order.ShippingAddress.Street,
+                order.ShippingAddress.City,
+                order.ShippingAddress.State,
+                order.ShippingAddress.Country,
+                order.ShippingAddress.ZipCode
+            ),
+            new AddressDto(
+                order.BillingAddress.Street,
+                order.BillingAddress.City,
+                order.BillingAddress.State,
+                order.BillingAddress.Country,
+                order.BillingAddress.ZipCode
+            ),
+            order.TotalAmount.Amount,
+            order.TotalAmount.Currency,
+            order.CreatedAt,
+            order.UpdatedAt,
+            order.ShippedAt,
+            order.DeliveredAt,
+            order.CancellationReason,
+            order.OrderItems.Select(item => new OrderItemDto(
+                item.Id,
+                item.ProductId,
+                item.ProductName,
+                item.UnitPrice.Amount,
+                item.UnitPrice.Currency,
+                item.Quantity,
+                item.UnitPrice.Amount * item.Quantity
+            )).ToList()
+        );
     }
 }

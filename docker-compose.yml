@@ -31,8 +31,8 @@ services:
 
   product-api:
     build:
-      context: ./Services/ProductService
-      dockerfile: Product.API/Dockerfile
+      context: .
+      dockerfile: Services/ProductService/Product.API/Dockerfile
     container_name: product-api
     restart: always
     environment:
@@ -63,8 +63,8 @@ services:
 
   auth-api:
     build:
-      context: ./Services/AuthService
-      dockerfile: Auth.API/Dockerfile
+      context: .
+      dockerfile: Services/AuthService/Auth.API/Dockerfile
     container_name: auth-api
     restart: always
     environment:
@@ -95,8 +95,8 @@ services:
 
   order-api:
     build:
-      context: ./Services/OrderService
-      dockerfile: Order.API/Dockerfile
+      context: .
+      dockerfile: Services/OrderService/Order.API/Dockerfile
     container_name: order-api
     restart: always
     environment:
@@ -135,8 +135,8 @@ services:
 
   stock-api:
     build:
-      context: ./Services/StockService
-      dockerfile: Stock.API/Dockerfile
+      context: .
+      dockerfile: Services/StockService/Stock.API/Dockerfile
     container_name: stock-api
     restart: always
     environment:

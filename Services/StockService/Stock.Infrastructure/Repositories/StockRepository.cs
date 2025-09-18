@@ -18,11 +18,11 @@ public class StockRepository : GenericRepository<StockItem>, IStockRepository
 
     public async Task<IEnumerable<StockItem>> GetLowStockItemsAsync(CancellationToken cancellationToken = default)
     {
-        return await _dbSet
+        var allItems = await _dbSet
             .Where(s => s.Status != StockStatus.Discontinued)
-            .AsEnumerable() // Switch to client-side evaluation for complex business logic
-            .Where(s => s.IsLowStock())
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
+        
+        return allItems.Where(s => s.IsLowStock());
     }
 
     public async Task<IEnumerable<StockItem>> GetOutOfStockItemsAsync(CancellationToken cancellationToken = default)

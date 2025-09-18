@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Order.Application.Features.Orders.Commands.CreateOrder;
+using Order.Application.Features.Orders.Queries.GetOrderById;
 using Order.Application.Features.Orders.Queries.GetOrdersByUserId;
 
 namespace Order.API.Controllers;
