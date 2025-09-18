@@ -1,4 +1,19 @@
 services:
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - ecommerce-net
+
   product-db:
     image: postgres:16
     container_name: product-db
@@ -27,6 +42,7 @@ services:
       - "7001:8080"
     depends_on:
       - product-db
+      - rabbitmq
     networks:
       - ecommerce-net
 
@@ -58,6 +74,7 @@ services:
       - "7002:8080"
     depends_on:
       - auth-db
+      - rabbitmq
     networks:
       - ecommerce-net
 
@@ -71,10 +88,12 @@ services:
     depends_on:
       - auth-api
       - product-api
+      - rabbitmq
     networks:
       - ecommerce-net
 
 volumes:
+  rabbitmq_data:
   product_data:
   auth_data:
 
