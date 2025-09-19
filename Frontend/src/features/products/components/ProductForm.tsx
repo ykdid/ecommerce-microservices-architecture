@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Card } from '../../../shared/components/ui';
 import { productService } from '../services';
-import type { CreateProductRequest } from '../types';
+import type { CreateProductRequest, Product } from '../types';
 
 interface ProductFormProps {
-  productId?: string;
+  product?: Product | null;
   onSuccess?: () => void;
+  onClose?: () => void;
 }
 
-export const ProductForm: React.FC<ProductFormProps> = ({ productId, onSuccess }) => {
+export const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess, onClose }) => {
   const [formData, setFormData] = useState<CreateProductRequest>({
     name: '',
     price: 0,
@@ -16,26 +17,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({ productId, onSuccess }
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  const isEditing = !!productId;
+  const isEditing = !!product;
 
   useEffect(() => {
-    if (productId) {
-      loadProduct(productId);
-    }
-  }, [productId]);
-
-  const loadProduct = async (id: string) => {
-    try {
-      const product = await productService.getById(id);
+    if (product) {
       setFormData({
         name: product.name,
         price: product.price,
         stock: product.stock,
       });
-    } catch (err: any) {
-      setError(err.message || 'Failed to load product');
     }
-  };
+  }, [product]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,19 +35,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({ productId, onSuccess }
     setError('');
 
     try {
-      if (isEditing) {
-        await productService.update(productId!, { id: productId!, ...formData });
+      if (isEditing && product) {
+        await productService.update(product.id, {
+          id: product.id,
+          ...formData
+        });
       } else {
         await productService.create(formData);
       }
-      
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        window.location.href = '/products';
-      }
+      onSuccess?.();
     } catch (err: any) {
-      setError(err.message || `Failed to ${isEditing ? 'update' : 'create'} product`);
+      setError(err.message || 'Failed to save product');
     } finally {
       setLoading(false);
     }
@@ -71,7 +61,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({ productId, onSuccess }
 
   return (
     <div className="max-w-md mx-auto">
-      <Card title={isEditing ? 'Edit Product' : 'Create Product'}>
+      <Card>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">
+            {isEditing ? 'Edit Product' : 'Create Product'}
+          </h2>
+          {onClose && (
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              ✕
+            </Button>
+          )}
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -123,7 +124,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ productId, onSuccess }
             <Button
               type="button"
               variant="secondary"
-              onClick={() => window.location.href = '/products'}
+              onClick={onClose}
               className="flex-1"
             >
               Cancel

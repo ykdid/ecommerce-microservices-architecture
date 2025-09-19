@@ -4,6 +4,8 @@ import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ProductsPage } from './pages/ProductsPage';
+import { OrdersPage } from './pages/OrdersPage';
+import { StocksPage } from './pages/StocksPage';
 import { authService } from './features/auth/services';
 
 // Protected Route Component
@@ -24,6 +26,22 @@ function App() {
           element={
             <ProtectedRoute>
               <ProductsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <OrdersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stocks"
+          element={
+            <ProtectedRoute>
+              <StocksPage />
             </ProtectedRoute>
           }
         />
