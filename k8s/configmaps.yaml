@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-config
+  namespace: ecommerce
+data:
+  hostname: "rabbitmq"
+  port: "5672"
+  virtualhost: "/"
+  exchange-name: "ecommerce_exchange"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-config
+  namespace: ecommerce
+data:
+  queue-name: "order_queue"
+  routing-key: "order.events"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stock-config
+  namespace: ecommerce
+data:
+  queue-name: "stock_queue"
+  routing-key: "stock.events"
