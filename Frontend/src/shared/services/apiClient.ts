@@ -1,13 +1,13 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-// API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Ocelot Gateway Configuration
+const GATEWAY_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-// Create axios instance
+// Create axios instance for Ocelot Gateway
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
+  baseURL: GATEWAY_BASE_URL,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -34,8 +34,15 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Handle unauthorized - clear token and redirect to login
       localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
       window.location.href = '/login';
     }
+    
+    // Log errors for debugging in development
+    if (import.meta.env.VITE_DEV_MODE === 'true') {
+      console.error('API Error:', error.response?.data || error.message);
+    }
+    
     return Promise.reject(error);
   }
 );
